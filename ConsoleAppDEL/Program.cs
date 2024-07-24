@@ -1,30 +1,7 @@
 ﻿using System.Linq.Expressions;
 using System.Reflection;
 
-/* Range based for loop */
-var numbers = Expression.Constant(Enumerable.Range(11, 3).ToArray());
-var writeline = typeof(Console).GetMethod("WriteLine", [typeof(int)]) ?? throw new Exception();
-
-var i = Expression.Variable(typeof(int), "i");
-
-var loopBreak = Expression.Label();
-
-var body = Expression.Block(
-    i,
-    Expression.Assign(i, Expression.Constant(0)),
-    Expression.Loop(
-     Expression.Block( 
-     Expression.Call(writeline, Expression.ArrayIndex(numbers, i)),
-     Expression.AddAssign(i, Expression.Constant(1)),
-     Expression.IfThen(
-      Expression.GreaterThan(i, Expression.Constant(2)),
-      Expression.Break(loopBreak)
-      )
-     ), loopBreak
-    )
-   );
-
-Expression.Lambda<Action<int>>(body, i).Compile()(234324);
+AG.Default.Main();
 
 namespace AG
 {
@@ -32,7 +9,35 @@ namespace AG
     {
         public static void Main()
         {
+            /* Range based for loop */
+            var numbers = Expression.Constant(Enumerable.Range(11, 3).ToArray());
+            var writeline = typeof(Console).GetMethod("WriteLine", [typeof(int)]) ?? throw new Exception();
 
+            var i = Expression.Variable(typeof(int), "i");
+            var setITo0 = Expression.Assign(i, Expression.Constant(0));
+
+            var loopBreak = Expression.Label();
+
+            var loopBlock = Expression.Block(
+                Expression.Call(writeline, Expression.ArrayIndex(numbers, i)),
+                Expression.AddAssign(i, Expression.Constant(1)),
+                Expression.IfThen(
+                    Expression.GreaterThan(i, Expression.Constant(2)),
+                    Expression.Break(loopBreak)
+                    )
+                );
+
+            var loop = Expression.Loop(
+                 loopBlock, loopBreak
+                 );
+
+            var body = Expression.Block(
+                [i],
+                setITo0,
+                loop
+                );
+
+            Expression.Lambda<Action>(body).Compile()();
         }
     }
 }
@@ -43,17 +48,23 @@ namespace AF
     {
         public static void Main()
         {
-            /* Range based for loop */
-            //var range = typeof(Enumerable).GetMethod("Range") ?? throw new Exception();
-            //var writeline = typeof(Console).GetMethod("WriteLine", [typeof(int)]);
-            //var rangeCall = Expression.Call(range, Expression.Constant(1), Expression.Constant(3));
-            //var numbers = Expression.Variable(typeof(IEnumerable<int>), "numbers");
-            //Expression.Assign(numbers, rangeCall);
-            //Expression.Loop(
+            /* Access a property using it name as string */
+            var arun = new User() { Name = "arun" };
 
-            //    )
+            string prop = "Name";
+
+            var propInfo = typeof(User).GetProperty(prop) ?? throw new Exception();
+
+            var value = propInfo.GetValue(arun);
+
+            Console.WriteLine(value);
         }
     }
+    public class User
+    {
+        public string Name { get; set; } = string.Empty;
+    }
+
 }
 
 namespace AE
@@ -90,7 +101,7 @@ namespace AE
                 loop
                 );
 
-            Expression.Lambda<Action>(body).Compile()();
+            Expression.Lambda<Action<int>>(body, i).Compile()(123);
         }
     }
 }
