@@ -1,7 +1,60 @@
 ﻿using System.Linq.Expressions;
 using System.Reflection;
 
-AG.Default.Main();
+AI.Default.Main();
+
+namespace AI
+{
+    public class Default
+    {
+        /* Array demo */
+        /* Numerical Array, While */
+        public static void Main()
+        {
+            var rulesParam = Expression.Parameter(typeof(string[]), "rules");
+            var iVar = Expression.Variable(typeof(int), "i");
+            var stringList = Expression.Constant(new List<string>());
+            var stringListAdd = typeof(List<string>).GetMethod("Add") ?? throw new Exception();
+            var stringListClear = typeof(List<string>).GetMethod("Clear") ?? throw new Exception();
+            var intToString = typeof(int).GetMethod("ToString", []) ?? throw new Exception(); ;
+            var writeLine = typeof(Console).GetMethod("WriteLine", [typeof(string)]) ?? throw new Exception();
+            var concat = typeof(string).GetMethod("Concat", [typeof(IEnumerable<string?>)]) ?? throw new Exception();
+            var loopBreak = Expression.Label();
+            
+            var loopBody = Expression.Block(
+                [iVar],
+                Expression.Call(stringList, stringListClear),
+                Expression.Call(stringList, stringListAdd, Expression.Constant("Rule ")),
+                Expression.Call(stringList, stringListAdd, Expression.Call(Expression.Increment(iVar), intToString)),
+                Expression.Call(stringList, stringListAdd, Expression.Constant(" : ")),
+                Expression.Call(stringList, stringListAdd, Expression.ArrayIndex(rulesParam, iVar)),
+
+                Expression.Call(writeLine,
+                Expression.Call(concat, stringList)
+                ),
+                Expression.AddAssign(iVar, Expression.Constant(1)),
+                Expression.IfThen(
+                    Expression.GreaterThanOrEqual(iVar, Expression.PropertyOrField(rulesParam, "Length")),
+                    Expression.Break(loopBreak)
+                    )
+                );
+            var loop = Expression.Loop(loopBody, loopBreak);
+
+            var lambda = Expression.Lambda<Action<string[]>>(loop, rulesParam).Compile();
+            string[] rules = { "Do no harm", "Obey", "Continue Living" };
+            lambda(rules);
+        }
+    }
+}
+
+namespace AH
+{
+    public class Default
+    {
+        /* copying range value to a variable */
+        // skipping
+    }
+}
 
 namespace AG
 {
