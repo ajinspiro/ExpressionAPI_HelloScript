@@ -20,7 +20,7 @@ namespace AI
             var writeLine = typeof(Console).GetMethod("WriteLine", [typeof(string)]) ?? throw new Exception();
             var concat = typeof(string).GetMethod("Concat", [typeof(IEnumerable<string?>)]) ?? throw new Exception();
             var loopBreak = Expression.Label();
-            
+
             var loopBody = Expression.Block(
                 [iVar],
                 Expression.Call(stringList, stringListClear),
@@ -232,10 +232,13 @@ namespace AA
         {
             /* A Simple Console Output */
             MethodInfo? writeline = typeof(Console)
-                                        .GetMethod("WriteLine", [typeof(string)]);
+                                        .GetMethod(
+                                            "WriteLine",
+                                            [typeof(string)]
+                                        );
             if (writeline is null) throw new Exception();
-            ConstantExpression hello = Expression.Constant("Hello!");
-            MethodCallExpression writelineCall = Expression.Call(writeline, hello);
+            var hello = Expression.Constant("Hello arike!");
+            var writelineCall = Expression.Call(writeline, hello);
             Expression.Lambda<Action>(writelineCall).Compile()();
         }
     }
